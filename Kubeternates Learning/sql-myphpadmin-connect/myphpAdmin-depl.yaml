@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myphp-admin-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      admin: myphp-admin
+  template:
+    metadata:
+      labels:
+       admin: myphp-admin
+    spec:
+      containers:
+      - name: myadmin-php
+        image: phpmyadmin
+        ports:
+        - containerPort: 80
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-root-password
+        - name: PMA_HOST
+          value: mysql-service
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-password
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: myphp-admin-service
+spec:
+  selector:
+    admin: myphp-admin
+  type: LoadBalancer
+  ports:
+    - protocol : TCP
+      port : 80
+      targetPort: 80 
+      nodePort: 30000   
+       
