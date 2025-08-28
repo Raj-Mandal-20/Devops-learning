@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-depl
+  namespace: wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      mysqldb: mysqldb
+  template:
+    metadata:
+      labels:
+        mysqldb: mysqldb
+    spec:
+      containers:
+      - name: mysql-container
+        image: mysql
+        ports: 
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secret-keys
+              key: mysql-root-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: env-configmap
+              key: mysql-database-name
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: wordpress
+spec:
+  selector:
+    mysqldb: mysqldb
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
