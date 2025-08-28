@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-setup
+  namespace: wordpress
+spec:
+  rules:
+  - host: wordpress.local 
+    http:
+      paths:
+      - path: /
+        pathType: Prefix # Or Exact, ImplementationSpecific
+        backend:
+          service:
+            name: wordpress-service # Use 'name' instead of 'serviceName'
+            port:
+              number: 80 # Use 'port.number' (or 'port.name') instead of 'servicePort'
